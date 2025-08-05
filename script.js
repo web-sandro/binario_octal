@@ -63,7 +63,9 @@ function octalParaBinario() {
     let digito = octal[i];
     let valorDecimal = parseInt(digito, 8);
     let grupoBin = valorDecimal.toString(2).padStart(3, '0');
-    etapas.push(`${digito} (octal) → ${valorDecimal} (decimal) → ${grupoBin} (binário)`);
+    etapas.push(`${digito} (octal) → ${grupoBin} (binário)`);
+    // com decimal
+    // etapas.push(`${digito} (octal) → ${valorDecimal} (decimal) → ${grupoBin} (binário)`);
     binario += grupoBin;
   }
 
