@@ -6,39 +6,58 @@ function binarioParaOctal() {
 
   let binario = binarioInput.value.trim();
 
-  if (binario === "" || !/^[01]+$/.test(binario)) {
+  if (binario === "" || !/^[01.]+$/.test(binario) || (binario.split('.').length > 2)) {
     octalInput.value = "";
-    resultado.innerHTML = "Digite um valor binário válido (apenas 0 e 1).";
+    resultado.innerHTML = "Digite um valor binário válido (0, 1 e no máximo um ponto).";
     passos.innerHTML = "";
     return;
   }
 
-  let binOriginal = binario;
+  let [parteInteira, parteFracionaria] = binario.split(".");
+  parteFracionaria = parteFracionaria || "";
+
   let etapas = [];
 
-  // Preencher com zeros à esquerda para múltiplos de 3
-  while (binario.length % 3 !== 0) {
-    binario = "0" + binario;
+  // ----- Parte inteira -----
+  while (parteInteira.length % 3 !== 0) {
+    parteInteira = "0" + parteInteira;
   }
+  etapas.push(`Parte inteira ajustada: ${parteInteira}`);
 
-  etapas.push(`Ajustando binário para múltiplos de 3 bits: ${binario}`);
-
-  let octal = "";
-
-  for (let i = 0; i < binario.length; i += 3) {
-    let grupo = binario.substr(i, 3);
+  let octInt = "";
+  for (let i = 0; i < parteInteira.length; i += 3) {
+    let grupo = parteInteira.substr(i, 3);
     let valorDecimal = parseInt(grupo, 2);
-    etapas.push(`${grupo} → ${valorDecimal} (octal)`);
-    octal += valorDecimal;
+    etapas.push(`${grupo} → ${valorDecimal}`);
+    octInt += valorDecimal;
   }
 
-  octalInput.value = octal;
-  resultado.innerHTML = `Binário: <strong>( ${binOriginal} )₂</strong> → Octal: <strong>( ${octal} )₈</strong>`;
+  // Remover zeros à esquerda
+  octInt = octInt.replace(/^0+/, "") || "0";
 
-  etapas.push(`<br><strong>Resultado final: ( ${binOriginal} )₂ → ( ${octal} )₈</strong>`);
+  // ----- Parte fracionária -----
+  let octFrac = "";
+  if (parteFracionaria.length > 0) {
+    while (parteFracionaria.length % 3 !== 0) {
+      parteFracionaria = parteFracionaria + "0";
+    }
+    etapas.push(`Parte fracionária ajustada: ${parteFracionaria}`);
 
-  passos.innerHTML = "<strong>Passos da conversão Binário → Octal:</strong><br>" +
-    etapas.join("<br>");
+    for (let i = 0; i < parteFracionaria.length; i += 3) {
+      let grupo = parteFracionaria.substr(i, 3);
+      let valorDecimal = parseInt(grupo, 2);
+      etapas.push(`${grupo} → ${valorDecimal}`);
+      octFrac += valorDecimal;
+    }
+    // remover zeros inúteis do final
+    octFrac = octFrac.replace(/0+$/, "");
+  }
+
+  let resultadoFinal = octInt + (octFrac ? "." + octFrac : "");
+  octalInput.value = resultadoFinal;
+
+  resultado.innerHTML = `Binário: <strong>( ${binario} )₂</strong> → Octal: <strong>( ${resultadoFinal} )₈</strong>`;
+  passos.innerHTML = "<strong>Passos da conversão Binário → Octal:</strong><br>" + etapas.join("<br>");
 }
 
 function octalParaBinario() {
@@ -49,31 +68,40 @@ function octalParaBinario() {
 
   let octal = octalInput.value.trim();
 
-  if (octal === "" || !/^[0-7]+$/.test(octal)) {
+  if (octal === "" || !/^[0-7.]+$/.test(octal) || (octal.split('.').length > 2)) {
     binarioInput.value = "";
-    resultado.innerHTML = "Digite um valor octal válido (apenas dígitos de 0 a 7).";
+    resultado.innerHTML = "Digite um valor octal válido (0-7 e no máximo um ponto).";
     passos.innerHTML = "";
     return;
   }
 
+  let [parteInteira, parteFracionaria] = octal.split(".");
+  parteFracionaria = parteFracionaria || "";
+
   let etapas = [];
-  let binario = "";
-
-  for (let i = 0; i < octal.length; i++) {
-    let digito = octal[i];
-    let valorDecimal = parseInt(digito, 8);
-    let grupoBin = valorDecimal.toString(2).padStart(3, '0');
+  let binInt = "";
+  for (let i = 0; i < parteInteira.length; i++) {
+    let digito = parteInteira[i];
+    let grupoBin = parseInt(digito, 8).toString(2).padStart(3, '0');
     etapas.push(`${digito} (octal) → ${grupoBin} (binário)`);
-    // com decimal
-    // etapas.push(`${digito} (octal) → ${valorDecimal} (decimal) → ${grupoBin} (binário)`);
-    binario += grupoBin;
+    binInt += grupoBin;
   }
+  // remover zeros à esquerda
+  binInt = binInt.replace(/^0+/, "") || "0";
 
-  binarioInput.value = binario;
-  resultado.innerHTML = `Octal: <strong>( ${octal} )₈</strong> → Binário: <strong>( ${binario} )₂</strong>`;
+  let binFrac = "";
+  for (let i = 0; i < parteFracionaria.length; i++) {
+    let digito = parteFracionaria[i];
+    let grupoBin = parseInt(digito, 8).toString(2).padStart(3, '0');
+    etapas.push(`${digito} (octal) → ${grupoBin} (binário)`);
+    binFrac += grupoBin;
+  }
+  // remover zeros inúteis do final
+  binFrac = binFrac.replace(/0+$/, "");
 
-  etapas.push(`<br><strong>Resultado final: ( ${octal} )₈ → ( ${binario} )₂</strong>`);
+  let resultadoFinal = binInt + (binFrac ? "." + binFrac : "");
+  binarioInput.value = resultadoFinal;
 
-  passos.innerHTML = "<strong>Passos da conversão Octal → Binário:</strong><br>" +
-    etapas.join("<br>");
+  resultado.innerHTML = `Octal: <strong>( ${octal} )₈</strong> → Binário: <strong>( ${resultadoFinal} )₂</strong>`;
+  passos.innerHTML = "<strong>Passos da conversão Octal → Binário:</strong><br>" + etapas.join("<br>");
 }
